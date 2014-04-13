@@ -19,50 +19,14 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <unistd.h>
+#include "util.h"
 
 
 using namespace pcl;
 using namespace std;
 
-typedef PointXYZRGB PointT;
-typedef PointSurfel PointNT;
-
-struct parameter
-{
-	int i;
-	float f;
-	string s;
-};
-map<string, parameter> loadConfig(const char* filename)
-{
-	ifstream f;
-	f.open(filename);
-	string t;
-	string param;
-	string val;
-	map<string, parameter> config;
-	while(getline(f,t,' '))
-	{
-		getline(f,param,'=');
-		getline(f,val);
-		boost::algorithm::trim(param);
-		parameter x;
-		if(t=="int")
-		{
-			x.i= atoi(val.c_str());
-		}
-		else if(t == "string")
-		{
-			x.s=val;
-		}
-		else if(t=="float")
-		{
-			x.f=atof(val.c_str());
-		}
-		config[param]=x;
-	}
-	return config;
-}
+typedef PointXYZ PointT;
+typedef PointNormal PointNT;
 
 void savePCDFiles(vector<PointCloud<PointNT>::Ptr> clouds, string output)
 {
@@ -79,6 +43,9 @@ vector<PointCloud<PointNT>::Ptr> loadPCDFiles(string input, int start,int end)
 	{
 		PointCloud<PointNT>::Ptr scan(new PointCloud<PointNT>);
 		io::loadPCDFile<PointNT>(input + boost::to_string(i) + ".pcd", *scan);
+		std::vector<int> indices;
+		pcl::removeNaNFromPointCloud(*scan,*scan,indices);
+		scan->width = scan->points.size();
 		scans.push_back(scan);
 	}
 	return scans;
@@ -94,9 +61,8 @@ void computeNormals(PointCloud<PointNT>::Ptr cloud, float normal_radius)
 	norm_est.compute(*cloud);
 	for(int i = 0; i < cloud->points.size(); i++)
 	{
-		
 		float d= (cloud->points[i].x*cloud->points[i].x)+(cloud->points[i].y*cloud->points[i].y)+(cloud->points[i].z*cloud->points[i].z);
-		cloud->points[i].confidence = (cloud->points[i].x*cloud->points[i].x)+(cloud->points[i].y*cloud->points[i].y)+(cloud->points[i].z*cloud->points[i].z);
+		//cloud->points[i].confidence = (cloud->points[i].x*cloud->points[i].x)+(cloud->points[i].y*cloud->points[i].y)+(cloud->points[i].z*cloud->points[i].z);
 	}
 }
 
@@ -191,7 +157,6 @@ int main(int argc, char** argv)
 
 		if(maxit >0)
 		{
-
 			IterativeClosestPointWithNormals<PointNT, PointNT> icp;
 			icp.setTransformationEpsilon(1e-7);
 			icp.setMaxCorrespondenceDistance(maxDist);
