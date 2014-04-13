@@ -40,6 +40,7 @@ norm: rowm rowm/set.meta normal.config
 straightenconfig: norm norm/sample/set.meta trace.config
 	rm -rf reg/
 	trace -i norm/ -o reg/
+
 clean:
 	touch torowm.config
 	touch normal.config
