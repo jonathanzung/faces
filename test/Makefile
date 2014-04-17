@@ -16,12 +16,12 @@ rowm: raw raw/set.meta torowm.config
 	topcd -i rowm/ -o pcd/ -n 0
 
 pcdstraight: rowm rowm/set.meta straighten.config
-	rm -rf straighten/
-	mkdir -p straighten/
-	straighten -i rowm/ -o straighten/
+	rm -rf straight/
+	mkdir -p straight/
+	straighten -i rowm/ -o straight/
 	rm -rf pcdstraight/
 	mkdir -p pcdstraight
-	topcd -i straighten/ -o pcdstraight/ -n 0
+	topcd -i straight/ -o pcdstraight/ -n 0
 
 pcdstitch: pcdstraight pcdstraight/set.meta stitch.config
 	rm -rf pcdstitch/
@@ -42,7 +42,7 @@ norm: rowm rowm/set.meta normal.config
 	mkdir -p pcdnorm
 	topcd -i norm/ -o pcdnorm/ -n 1
 
-straightenparams: norm norm/sample/set.meta trace.config
+calibrate: norm norm/sample/set.meta trace.config
 	rm -rf reg/
 	rm -rf pcdreg/
 	mkdir -p reg/
@@ -60,6 +60,7 @@ clean:
 	touch stitch.config
 	touch trace.config
 	touch graft.config
+
 cleanall:
 	touch capture.config
 	touch torowm.config
