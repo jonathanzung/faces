@@ -1,9 +1,9 @@
 #!/bin/bash
 
 export PATH := ../:$(PATH)
-all: norm
+all: mesh.stl
 
-raw: capture.config
+raw:
 	rm -rf raw/
 	mkdir -p raw
 	capture -o raw/
@@ -15,18 +15,22 @@ rowm: raw raw/set.meta torowm.config
 	mkdir -p pcd
 	topcd -i rowm/ -o pcd/ -n 0
 
-straighten: rowm rowm/set.meta straighten.config
+pcdstraight: rowm rowm/set.meta straighten.config
 	rm -rf straighten/
 	mkdir -p straighten/
 	straighten -i rowm/ -o straighten/
-	rm -rf spcd/
-	mkdir -p spcd
-	topcd -i straighten/ -o spcd/ -n 0
+	rm -rf pcdstraight/
+	mkdir -p pcdstraight
+	topcd -i straighten/ -o pcdstraight/ -n 0
 
-stitch: rowm rowm/set.meta stitch.config
-	rm -rf stitch/
-	mkdir -p stitch
-	stitch -i spcd/ -o stitch/ -n 20
+pcdstitch: pcdstraight pcdstraight/set.meta stitch.config
+	rm -rf pcdstitch/
+	mkdir -p pcdstitch
+	stitch -i pcdstraight/ -o pcdstitch/
+
+mesh.stl: pcdstitch pcdstitch/merged.pcd graft.config
+	graft -i pcdstitch/merged.pcd -o ./
+	view.py mesh.stl
 
 norm: rowm rowm/set.meta normal.config
 	rm -rf norm/
@@ -37,9 +41,16 @@ norm: rowm rowm/set.meta normal.config
 	rm -rf pcdnorm/
 	mkdir -p pcdnorm
 	topcd -i norm/ -o pcdnorm/ -n 1
-straightenconfig: norm norm/sample/set.meta trace.config
+
+straightenparams: norm norm/sample/set.meta trace.config
 	rm -rf reg/
+	rm -rf pcdreg/
+	mkdir -p reg/
+	mkdir -p reg/sample
+	mkdir -p reg/samplenormal
+	mkdir -p pcdreg/
 	trace -i norm/ -o reg/
+	topcd -i reg/ -o pcdreg/ -n 1
 
 clean:
 	touch torowm.config
@@ -48,6 +59,7 @@ clean:
 	touch topcd.config
 	touch stitch.config
 	touch trace.config
+	touch graft.config
 cleanall:
 	touch capture.config
 	touch torowm.config
@@ -55,3 +67,5 @@ cleanall:
 	touch trace.config
 	touch topcd.config
 	touch stitch.config
+	touch trace.config
+	touch graft.config

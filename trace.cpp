@@ -18,6 +18,15 @@ typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Ma
 
 typedef Dualn<Dualn<float, 2>, 3> DVal;
 typedef Dualn<float,2> Dual2;
+
+Matrix<float,3,1> deform(const Matrix<float,3,1>& pos, float theta1, float theta2)
+{
+	Matrix<float,3,1> ret;
+	ret(0,0)=pos(0,0);
+	ret(1,0)=pos(1,0);
+	ret(2,0)=pos(2,0)+theta1*pos(0,0)*pos(0,0) + theta2*pos(1,0)*pos(1,0);
+	return ret;
+}
 Matrix<DVal,3,1> deform(const Matrix<DVal,3,1>& pos, DVal theta1, DVal theta2)
 {
 	Matrix<DVal,3,1> ret;
@@ -26,7 +35,6 @@ Matrix<DVal,3,1> deform(const Matrix<DVal,3,1>& pos, DVal theta1, DVal theta2)
 	ret(2,0)=pos(2,0)+theta1*pos(0,0)*pos(0,0) + theta2*pos(1,0)*pos(1,0);
 	return ret;
 }
-
 
 Matrix<Dual2,3,1> transformednormal(const Matrix<DVal,3,1>& point, const Matrix<Dual2,3,1>& normal, DVal theta1, DVal theta2)
 {
@@ -37,7 +45,7 @@ Matrix<Dual2,3,1> transformednormal(const Matrix<DVal,3,1>& point, const Matrix<
 	{
 		for(int j=0; j<3; j++)
 		{
-			defmatrix(i,j)=deformation(j,0).dval[i];
+			defmatrix(i,j)=deformation(i,0).dval[j];
 		}
 	}
 	Matrix<Dual2,3,1> transformednormal = (normal.transpose()*defmatrix.inverse()).transpose();
@@ -86,8 +94,8 @@ int main(int argc, char** argv)
 	Dual2 dz[] = {Dual2(0),Dual2(0),Dual2(1)};
 	Dual2 zero2[] = {Dual2(0),Dual2(0),Dual2(0)};
 
-	float theta1init = -0;
-	float theta2init = -0;
+	float theta1init = 0;
+	float theta2init = 0;
 
 	float dtheta1[] = {1,0};
 	float dtheta2[] = {0,1};
@@ -135,13 +143,11 @@ int main(int argc, char** argv)
 		for(int cl=0; cl<samples.size(); cl++)
 		{
 			Matrix<Dual2,Dynamic,Dynamic> centred = deformednormals[cl].rowwise() - deformednormals[cl].colwise().mean();
-			Matrix<Dual2,Dynamic,Dynamic> cov = centred.adjoint() * centred;
+			Matrix<Dual2,Dynamic,Dynamic> cov = centred.transpose() * centred;
 			for(int a=0;a<3;a++)
 			{
-				for(int b=0; b<3;b++)
-				{
-					deriv+=cov(a,b)*cov(a,b);
-				}
+				//cout << cov(a,a).val << " ";
+				deriv+=cov(a,a)*cov(a,a);
 			}
 		}
 		cout << deriv.val << " + " << deriv.dval[0] << "dtheta1 + " << deriv.dval[1] << "dtheta2" << endl;
@@ -156,4 +162,23 @@ int main(int argc, char** argv)
 	f << "float theta1=" << theta1.val.val << endl;
 	f << "float theta2=" << theta2.val.val << endl;
 	f.close();
+
+	for(int cl=0; cl<samples.size(); cl++)
+	{
+		for(int i=0; i<samples[cl].rows(); i++)
+		{
+			samples[cl].row(i) = deform(samples[cl].row(i),theta1.val.val, theta2.val.val);
+			for(int j=0; j<3; j++)
+			{
+				samplenormals[cl](i,j) = deformednormals[cl](i,j).val;
+			}
+		}
+	}
+	stringstream f3;
+	f3 << output << "sample/";
+	eigenToFile<MatrixXfRM>(samples, f3.str());
+
+	stringstream f4;
+	f4 << output << "samplenormal/";
+	eigenToFile<MatrixXfRM>(samplenormals, f4.str());
 }

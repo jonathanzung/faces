@@ -122,14 +122,14 @@ inline Dualn<T,n> operator*(double a, Dualn<T,n> b)
 	return Dualn<T,n>(a*b.val, dval);
 }
 
-template <typename T, int n>
+	template <typename T, int n>
 inline Dualn<T,n> operator-(Dualn<T,n> b)
 {
 	return -1.0 * b;
 }
 
 
-template <typename T, int n>
+	template <typename T, int n>
 Dualn<T,n> pow(Dualn<T,n> a, double exponent)
 {
 	for(int i=0; i<n; i++)
@@ -140,7 +140,7 @@ Dualn<T,n> pow(Dualn<T,n> a, double exponent)
 	return a;
 }
 
-template <typename T, int n, int x, int y>
+	template <typename T, int n, int x, int y>
 inline Eigen::Matrix<Dualn<T,n>, x, y> operator*(const Eigen::Matrix<Dualn<T,n>,x,y>& a, Dualn<T,n> s)
 {
 	Eigen::Matrix<Dualn<T,n>,x,y> m;
@@ -164,7 +164,7 @@ inline Dualn<T,n> operator/(Dualn<T,n> a, Dualn<T,n> b)
 	}
 	return Dualn<T,n>(a.val/b.val,dval);
 }
-template <typename T, int n>
+	template <typename T, int n>
 inline Dualn<T,n> operator/(Dualn<T,n> a, double b)
 {
 	T dval[n];

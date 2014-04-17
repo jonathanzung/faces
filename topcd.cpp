@@ -3,8 +3,6 @@
 #include <math.h>
 #include <complex>
 
-#include <pcl/io/pcd_io.h>
-
 #include <map>
 //#include <fstream>
 //#include <stdio.h>
@@ -13,6 +11,7 @@
 
 #include <Eigen/Core>
 #include "util.h"
+#include <pcl/io/pcd_io.h>
 
 using namespace std;
 using namespace pcl;
@@ -82,6 +81,9 @@ int main(int argc, char** argv)
 				break;
 		}
 	}
+	stringstream setmeta;
+	setmeta << output << "set.meta";
+	ofstream f5(setmeta.str().c_str());
 	if(normal==1)
 	{
 		stringstream f1;
@@ -97,6 +99,7 @@ int main(int argc, char** argv)
 			filename << output << i << ".pcd";
 			io::savePCDFileBinary(filename.str(), cloud);
 		}
+		f5 << samples.size();
 	}
 	else
 	{
@@ -109,5 +112,7 @@ int main(int argc, char** argv)
 			filename << output << i << ".pcd";
 			io::savePCDFileBinary(filename.str(), cloud);
 		}
+		f5 << clouds.size();
 	}
+	f5.close();
 }

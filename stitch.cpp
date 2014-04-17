@@ -28,21 +28,33 @@ using namespace std;
 typedef PointXYZ PointT;
 typedef PointNormal PointNT;
 
-void savePCDFiles(vector<PointCloud<PointNT>::Ptr> clouds, string output)
+void pcdToFile(vector<PointCloud<PointNT>::Ptr> clouds, string output)
 {
 	for(int i=0; i<clouds.size(); i++)
 	{
 		io::savePCDFileBinary(output + boost::to_string(i) + ".pcd", *(clouds[i]));
 	}
+	stringstream setmeta;
+	setmeta << output << "set.meta";
+	ofstream f(setmeta.str().c_str());
+	f << clouds.size();
+	f.close();
 }
 
-vector<PointCloud<PointNT>::Ptr> loadPCDFiles(string input, int start,int end)
+vector<PointCloud<PointNT>::Ptr> pcdFromFile(string filename)
 {
+	cout << "Reading from " << filename << endl;
+	stringstream setmeta;
+	setmeta << filename << "set.meta";
+	ifstream rm(setmeta.str().c_str());
+	int n;
+	rm >> n;
+	
 	vector<PointCloud<PointNT>::Ptr> scans;
-	for(int i=start; i<=end; i++)
+	for(int i=0; i<n; i++)
 	{
 		PointCloud<PointNT>::Ptr scan(new PointCloud<PointNT>);
-		io::loadPCDFile<PointNT>(input + boost::to_string(i) + ".pcd", *scan);
+		io::loadPCDFile<PointNT>(filename + boost::to_string(i) + ".pcd", *scan);
 		std::vector<int> indices;
 		pcl::removeNaNFromPointCloud(*scan,*scan,indices);
 		scan->width = scan->points.size();
@@ -126,16 +138,12 @@ int main(int argc, char** argv)
 			case 'o':
 				output = optarg;
 				break;
-			case 'n':
-				start = 0;
-				end = atoi(optarg)-1;
-				break;
 		}
 	}
 
 	PointCloud<PointNT>::Ptr combined(new PointCloud<PointNT>);
 
-	vector<PointCloud<PointNT>::Ptr> clouds = loadPCDFiles(input, start, end);
+	vector<PointCloud<PointNT>::Ptr> clouds = pcdFromFile(input);
 	if(compute_normals>0)
 	{
 		computeNormals(clouds[0], normal_radius1);
@@ -186,6 +194,6 @@ int main(int argc, char** argv)
 	}
 	recomputeNormals(combined, normal_radius2);
 	cout << "Saving clouds to " << output << endl;
-	savePCDFiles(clouds, output);
+	pcdToFile(clouds, output);
 	io::savePCDFileBinary(output + "merged.pcd", *combined);
 }
