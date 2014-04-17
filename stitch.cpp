@@ -192,7 +192,7 @@ int main(int argc, char** argv)
 		}
 		clouds[it]=cloud3;
 	}
-	recomputeNormals(combined, normal_radius2);
+	//recomputeNormals(combined, normal_radius2);
 	cout << "Saving clouds to " << output << endl;
 	pcdToFile(clouds, output);
 	io::savePCDFileBinary(output + "merged.pcd", *combined);
