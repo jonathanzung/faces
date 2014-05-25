@@ -1,0 +1,47 @@
+\documentclass[12pt]{article}
+%\usepackage[left=0.8cm, right=2cm, top=2cm,bottom=2cm]{geometry}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{tabu}
+%\usepackage{amsthm}
+%\usepackage{luacode}
+
+\newcommand{\R}{\mathbb R}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\C}{\mathbb C}
+\newcommand{\N}{\mathbb N}
+\newcommand{\seq}[1]{\{#1 _i\}}
+\newcommand{\seqn}[1]{#1_1,#1_2,\hdots,#1_n}
+\newcommand{\set}[1]{\left\{#1\right\}}
+\newcommand{\goesto}{\rightarrow}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\inv}{^{-1}}
+\newcommand{\toinfty}[1]{\lim_{#1\goesto\infty}}
+\newcommand{\norm}[1]{\int \abs{#1}}
+\newcommand{\inner}[2]{\left\langle{#1},{#2}\right\rangle}
+\newcommand{\oneover}[1]{\frac 1 {#1}}
+\newcommand{\done}{\hfill$\square$}
+\newcommand{\Hom}{\text{Hom}}
+
+\begin{document}
+Let $C$ be a high res point cloud. Here are some competing models for how to produce a low res point cloud $\seq c$ from $C$.
+\begin{enumerate}
+	\item Sample points at random from $C$, and then add Gaussian noise.
+	\item Voxelize space with low resolution. For each voxel intersecting $C$, average the points of $C$ in the voxel to produce a point in $c_i$. Variants:
+		\begin{enumerate}
+			\item Instead of hard voxel boundaries, we could use a Gaussian kernel to produce these local averages.
+			\item A more realistic model exchanges voxels for visual cones radiating from the sensor.
+		\end{enumerate}
+\end{enumerate}
+The first model leads to the current EM algorithm. If any blurring is applied to $C$ before the sampling process, this algorithm will just reconstruct the blurred cloud. Concretely, the reconstructed cloud is always inside the convex hull of the low res clouds.
+
+For the second model, we construct a matrix $A$ which assigns points of $C$ to voxels (perhaps softly). First, some notation: for a point cloud $C$, let $\vec{C} \in \R^{3\abs{C}}$ be the list of coordinates of its points. Then $A\vec{C}=concat(\set{\vec{c_i}})$. The reconstruction algorithm alternates between two steps:
+\begin{enumerate}
+	\item Compute $A$.
+	\item Set $\vec{C}=A\inv concat(\set{\vec{c_i}})$
+\end{enumerate}
+Now let's compare with the EM algorithm. The EM algorithm forms a ``responsibility matrix'' with the same dimensions of $A$, which assigns high res points to low res points for which they are responsible. However, the update rule looks like $\vec{C}=normalize\_rows(A^T)\cdot concat(\set{\vec{c_i}})$.
+\end{document}
