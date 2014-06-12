@@ -153,6 +153,8 @@ int main(int argc, char** argv)
 
 	Eigen::Matrix4f guess = Eigen::Matrix4f::Identity();
 	Eigen::Matrix3f lastguess = submatrix(guess).inverse();
+	vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > orientations;
+	orientations.push_back(guess);
 	for(int it = 1; it < clouds.size(); it++)
 	{
 		PointCloud<PointNT>::Ptr cloud2 = clouds[it];
@@ -171,11 +173,10 @@ int main(int argc, char** argv)
 			icp.setInputCloud(cloud2);
 			icp.setInputTarget(combined);
 
-
 			icp.setMaximumIterations(maxit);
 			icp.align(transformed, guess);
 			guess = icp.getFinalTransformation();
-
+			orientations.push_back(guess);
 
 			cout << "Frame " << it << " Score: " << icp.getFitnessScore() << endl;
 		}
@@ -195,5 +196,10 @@ int main(int argc, char** argv)
 	//recomputeNormals(combined, normal_radius2);
 	cout << "Saving clouds to " << output << endl;
 	pcdToFile(clouds, output);
+
+	stringstream f2;
+	f2 << output << "orientations/";
+	eigenToFile<Eigen::Matrix4f>(orientations, f2.str());
+
 	io::savePCDFileBinary(output + "merged.pcd", *combined);
 }

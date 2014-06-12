@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export PATH := ../:$(PATH)
+export PATH := ../:../super/:$(PATH)
 all: mesh.stl
 
-raw:
+raw: capture.config
 	rm -rf raw/
 	mkdir -p raw
 	capture -o raw/
@@ -26,11 +26,17 @@ pcdstraight: rowm rowm/set.meta straighten.config
 pcdstitch: pcdstraight pcdstraight/set.meta stitch.config
 	rm -rf pcdstitch/
 	mkdir -p pcdstitch
+	mkdir pcdstitch/orientations
 	stitch -i pcdstraight/ -o pcdstitch/
 
 mesh.stl: pcdstitch pcdstitch/merged.pcd graft.config
 	graft -i pcdstitch/merged.pcd -o ./
 	view.py mesh.stl
+
+pcdsuper: mesh.stl super.config
+	rm -rf pcdsuper
+	mkdir -p pcdsuper
+	super -i pcdstraight/ -o pcdsuper/ -r pcdstitch/orientations/ -s mesh.stl
 
 norm: rowm rowm/set.meta normal.config
 	rm -rf norm/
@@ -60,6 +66,7 @@ clean:
 	touch stitch.config
 	touch trace.config
 	touch graft.config
+	touch super.config
 
 cleanall:
 	touch capture.config
@@ -70,3 +77,4 @@ cleanall:
 	touch stitch.config
 	touch trace.config
 	touch graft.config
+	touch super.config

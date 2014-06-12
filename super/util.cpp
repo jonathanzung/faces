@@ -17,7 +17,6 @@
 using namespace std;
 using namespace pcl;
 typedef PointXYZ PointT;
-typedef PointSurfel PointNT;
 
 struct parameter
 {
@@ -72,7 +71,7 @@ void savePCDFiles(vector<PointCloud<PointT>::Ptr> clouds, string output)
 	f.close();
 }
 
-vector<PointCloud<PointNT>::Ptr> loadPCDFiles(string input)
+vector<PointCloud<PointT>::Ptr> loadPCDFiles(string input)
 {
 	cout << "Loading from " << input << endl;
 	stringstream setmeta;
@@ -81,11 +80,11 @@ vector<PointCloud<PointNT>::Ptr> loadPCDFiles(string input)
 	int n;
 	rm >> n;
 
-	vector<PointCloud<PointNT>::Ptr> scans;
+	vector<PointCloud<PointT>::Ptr> scans;
 	for(int i=0; i<n; i++)
 	{
-		PointCloud<PointNT>::Ptr scan(new PointCloud<PointNT>);
-		io::loadPCDFile<PointNT>(input + boost::to_string(i) + ".pcd", *scan);
+		PointCloud<PointT>::Ptr scan(new PointCloud<PointT>);
+		io::loadPCDFile<PointT>(input + boost::to_string(i) + ".pcd", *scan);
 		scans.push_back(scan);
 	}
 	return scans;
