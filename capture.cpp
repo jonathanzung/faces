@@ -1,6 +1,6 @@
-#ifdef __clang__
-typedef struct { long double x, y; } __float128;
-#endif
+//#ifdef __clang__
+//typedef struct { long double x, y; } __float128;
+//#endif
 
 #include "OpenNI.h"
 #include <PS1080.h>

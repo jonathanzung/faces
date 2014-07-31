@@ -4,7 +4,6 @@
 #include <pcl/io/vtk_lib_io.h>
 
 #include <pcl/registration/icp_nl.h>
-#include <pcl/visualization/cloud_viewer.h>
 
 #include <Eigen/Core>
 #include <Eigen/Sparse>

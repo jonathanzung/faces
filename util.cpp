@@ -91,10 +91,10 @@ Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> project(Ei
 			if(
 					m(i,j)>avz-20 &&
 					m(i,j)< avz + 20 &&
-					i > avx - 200 &&
-					i < avx + 200 &&
-					j > avy - 200 &&
-					j < avy + 200
+					i > avx - 50 &&
+					i < avx + 50 &&
+					j > avy - 50 &&
+					j < avy + 50
 			  )
 			{
 				nonzero++;
@@ -109,10 +109,10 @@ Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> project(Ei
 			if(
 					m(i,j)>avz-20 &&
 					m(i,j)< avz + 20 &&
-					i > avx - 200 &&
-					i < avx + 200 &&
-					j > avy - 200 &&
-					j < avy + 200
+					i > avx - 50 &&
+					i < avx + 50 &&
+					j > avy - 50 &&
+					j < avy + 50
 			  )
 			{
 				ret(index,0)=(i-xmid)/(xmid)*tan(xfov/2);

@@ -1,7 +1,7 @@
-all: capture normal topcd trace torowm stitch straighten graft
+all: capture normal topcd trace torowm stitch straighten graft inspect compare downsample
 
 capture: capture.o util.o
-	clang -O capture.o util.o -L/home/jonathan/faces/.lib/OpenNI/Redist -lOpenNI2 -lstdc++ -lm -o capture
+	clang -O capture.o util.o -L/home/jonathan/Documents/CS/faces/.lib/OpenNI/Redist -lOpenNI2 -lstdc++ -lm -o capture
 	touch test/capture.config
 
 normal: normal.o util.o
@@ -39,7 +39,7 @@ straighten.o: straighten.cpp util.h
 	clang -c straighten.cpp
 
 capture.o: capture.cpp util.h
-	clang -std=gnu++11 -c capture.cpp -I/home/jonathan/faces/.lib/OpenNI/Include
+	clang -std=gnu++11 -c capture.cpp -I/home/jonathan/Documents/CS/faces/.lib/OpenNI/Include
 
 topcd: topcd.o util.o
 	clang -O topcd.o util.o -I/usr/include/pcl-1.7 -lpcl_common -lpcl_io -lstdc++ -lm -lboost_system -I/usr/include/eigen3 -o topcd
@@ -49,3 +49,18 @@ stitch: stitch.cpp util.h
 
 graft: graft.cpp
 	clang -O graft.cpp -I/usr/include/pcl-1.7 -lpcl_common -lpcl_io -I/usr/lib -lstdc++ -lboost_system -lpcl_registration -lpcl_search -lpcl_kdtree -lpcl_filters -lpcl_surface -lpcl_features -I/usr/include/vtk-5.8 -I/usr/include/eigen3 -o graft
+
+inspect.o: inspect.cpp
+	g++ -O -c inspect.cpp -lstdc++ -I/usr/lib -I/usr/include/ -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -I/usr/include/vtk-5.8
+
+inspect: inspect.o
+	g++ -w -O inspect.o -lpcl_common -lpcl_io -lm -lstdc++ -lboost_system -lpcl_search -lpcl_kdtree -lpcl_surface -lpcl_filters -lpcl_registration -o inspect
+
+compare.o: compare.cpp
+	g++ -O -c compare.cpp -lstdc++ -I/usr/lib -I/usr/include/ -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -I/usr/include/vtk-5.8
+
+compare: compare.o
+	g++ -w -O compare.o -lpcl_common -lpcl_io -lm -lstdc++ -lboost_system -lpcl_search -lpcl_kdtree -lpcl_surface -lpcl_filters -lpcl_registration -o compare
+
+downsample: downsample.cpp util.h
+	clang -O downsample.cpp util.o  -I/usr/lib -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -I/usr/include/vtk-5.8 -lvtkCommon -o downsample

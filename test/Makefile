@@ -1,12 +1,13 @@
 #!/bin/bash
 
 export PATH := ../:../super/:$(PATH)
-all: mesh.stl
+all: pcdsuper
 
 raw: capture.config
 	rm -rf raw/
 	mkdir -p raw
 	capture -o raw/
+
 rowm: raw raw/set.meta torowm.config
 	rm -rf rowm/
 	mkdir -p rowm/
@@ -31,12 +32,32 @@ pcdstitch: pcdstraight pcdstraight/set.meta stitch.config
 
 mesh.stl: pcdstitch pcdstitch/merged.pcd graft.config
 	graft -i pcdstitch/merged.pcd -o ./
-	view.py mesh.stl
+	#view.py mesh.stl
+
+pcdgen: gen.config graft.config
+	rm -rf pcdgen/
+	mkdir -p pcdgen
+	mkdir pcdgen/orientations
+	mkdir pcdgen/scans
+	gen -o pcdgen/
+	graft -i pcdgen/merged.pcd -o pcdgen/
 
 pcdsuper: mesh.stl super.config
 	rm -rf pcdsuper
 	mkdir -p pcdsuper
+	mkdir -p pcdsuper/orientations
 	super -i pcdstraight/ -o pcdsuper/ -r pcdstitch/orientations/ -s mesh.stl
+	#view.py pcdsuper/mesh.stl
+
+pcdsupergen: pcdgen super.config
+	rm -rf pcdsupergen
+	mkdir -p pcdsupergen
+	mkdir -p pcdsupergen/orientations
+	super -i pcdgen/scans/ -o pcdsupergen/ -r pcdgen/orientations/ -s pcdgen/mesh.stl
+	compare pcdsupergen/spine_initial.pcd pcdgen/spine.pcd
+	compare pcdsupergen/spine.pcd pcdgen/spine.pcd
+	pcl_viewer -ps 3 pcdsupergen/spine.pcd pcdgen/spine.pcd pcdgen/merged.pcd
+	#openf pcdsupergen/mesh.stl
 
 norm: rowm rowm/set.meta normal.config
 	rm -rf norm/
