@@ -65,3 +65,6 @@ compare: compare.o
 
 downsample: downsample.cpp util.h
 	$(CC) -O downsample.cpp util.o  -I/usr/lib -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -I/usr/include/vtk-5.8 -lvtkCommon -o downsample
+
+segment: segment.cpp
+	$(CC) -O segment.cpp -I/usr/lib -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -I/usr/include/vtk-5.8 -lvtkCommon -o segment
