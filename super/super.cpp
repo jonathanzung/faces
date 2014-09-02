@@ -1,4 +1,6 @@
 #include "dep.h"
+#include "cg.hpp"
+
 using namespace pcl;
 using namespace std;
 using namespace Eigen;
@@ -397,6 +399,7 @@ int main (int argc, char** argv)
 				it.valueRef()/=row_sums(it.row());
 			}
 		}
+#if 0
 		SparseMatrix<float> B = A.transpose() * A + k*lap + peg_k*boundary_projection + cam_k*cam_projection;
 
 		BiCGSTAB<SparseMatrix<float> > solver;
@@ -409,6 +412,19 @@ int main (int argc, char** argv)
 		cout << "\t\t||Ax-b||: " << (A*x-b).squaredNorm() << endl;
 		//cout << "\t\t||Ax||" << (A*x).squaredNorm() << endl;
 		//cout << "\t\t||b||" << (b).squaredNorm() << endl;
+#else
+		typedef RegLSQMatrix< SparseMatrix<float>,SparseMatrix<float> > LHSType;
+
+                SparseMatrix<float> Q = k*lap + peg_k*boundary_projection + cam_k*cam_projection;
+                // QUESTION: Why does the RHS depend on x!?!?
+                // ANSWER: This term keeps the boundary (approximately) fixed
+                VectorXf RHS(A.transpose() * b + peg_k*boundary_projection*x);
+		LHSType LHS(A,Q);
+		GeneralCGSolver<LHSType, float> solver(LHS,RHS,x);
+
+		solver.solve();
+		cout << "\t\t||Ax-b||: " << solver.ssq_residual() << endl;
+#endif
 		cout << "\t\tSolver iterations: " << solver.iterations() << endl;
 
 		for(int i=0; i<spine->points.size(); i++)
