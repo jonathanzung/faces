@@ -11,7 +11,7 @@ public:
 
   GeneralCGSolver(const Atype &A, const Vector &b, Vector &x)
   : mA(A), mb(b), mx(x), mIt(0) {
-    mR = b - A*x;
+    mR.noalias() = b - A*x;
     mRNorm2 = mR.squaredNorm();
     mP = mR;
   } 
