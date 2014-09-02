@@ -1,12 +1,12 @@
-CC=g++
-all: capture normal topcd trace torowm stitch straighten graft inspect compare downsample
+CC=g++ -march=native -msse3 -mfpmath=sse -isystem /dupa-filer/jzung/include -isystem /dupa-filer/jzung/include/eigen3 -I /dupa-filer/jzung/include/vtk-6.1 -L /dupa-filer/jzung/lib 
+all: normal topcd trace torowm stitch straighten graft inspect compare
 
 capture: capture.o util.o
 	$(CC) -O capture.o util.o -L/home/jonathan/Documents/CS/faces/.lib/OpenNI/Redist -lOpenNI2 -lstdc++ -lm -o capture
 	touch test/capture.config
 
 normal: normal.o util.o
-	$(CC) -O normal.o util.o -lstdc++ -lm -o normal 
+	$(CC) -O normal.o util.o -lstdc++ -lm -lflann -o normal 
 	touch test/normal.config
 
 torowm: torowm.o util.o
@@ -46,7 +46,7 @@ topcd: topcd.o util.o
 	$(CC) -O topcd.o util.o -I/usr/include/pcl-1.7 -lpcl_common -lpcl_io -lstdc++ -lm -lboost_system -I/usr/include/eigen3 -o topcd
 
 stitch: stitch.cpp util.h
-	$(CC) -O stitch.cpp util.o  -I/usr/lib -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_registration -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -I/usr/include/vtk-5.8 -lvtkCommon -o stitch
+	$(CC) -O stitch.cpp util.o  -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_registration -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -o stitch
 
 graft: graft.cpp
 	$(CC) -O graft.cpp -I/usr/include/pcl-1.7 -lpcl_common -lpcl_io -I/usr/lib -lstdc++ -lboost_system -lpcl_registration -lpcl_search -lpcl_kdtree -lpcl_filters -lpcl_surface -lpcl_features -I/usr/include/vtk-5.8 -I/usr/include/eigen3 -o graft
@@ -63,8 +63,5 @@ compare.o: compare.cpp
 compare: compare.o
 	$(CC) -w -O compare.o -lpcl_common -lpcl_io -lm -lstdc++ -lboost_system -lpcl_search -lpcl_kdtree -lpcl_surface -lpcl_filters -lpcl_registration -o compare
 
-downsample: downsample.cpp util.h
-	$(CC) -O downsample.cpp util.o  -I/usr/lib -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -I/usr/include/vtk-5.8 -lvtkCommon -o downsample
-
 segment: segment.cpp
-	$(CC) -O segment.cpp -I/usr/lib -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -I/usr/include/vtk-5.8 -lvtkCommon -o segment
+	$(CC) -O segment.cpp -I/usr/lib -I/usr/include/pcl-1.7 -I/usr/include/eigen3 -lstdc++ -lm -lboost_system -lpcl_common -lpcl_io -lpcl_search -lpcl_visualization -lpcl_filters -lpcl_features -o segment

@@ -1,12 +1,11 @@
 #!/bin/bash
-
 export PATH := ../:../super/:$(PATH)
 all: pcdsuper
 
-raw: capture.config
-	rm -rf raw/
-	mkdir -p raw
-	capture -o raw/
+#raw: capture.config
+#	rm -rf raw/
+#	mkdir -p raw
+#	capture -o raw/
 
 rowm: raw raw/set.meta torowm.config
 	rm -rf rowm/
@@ -16,23 +15,28 @@ rowm: raw raw/set.meta torowm.config
 	mkdir -p pcd
 	topcd -i rowm/ -o pcd/ -n 0
 
-pcdstraight: rowm rowm/set.meta straighten.config
-	rm -rf straight/
-	mkdir -p straight/
-	straighten -i rowm/ -o straight/
-	rm -rf pcdstraight/
-	mkdir -p pcdstraight
-	topcd -i straight/ -o pcdstraight/ -n 0
+pcdseg: rowm rowm/set.meta pcd pcd/set.meta
+	rm -rf pcdseg
+	mkdir -p pcdseg
+	./segmentscript
+	cp pcd/set.meta pcdseg/set.meta
 
-pcdstitch: pcdstraight pcdstraight/set.meta stitch.config
+pcdstitch: pcdseg pcdseg/set.meta stitch.config
 	rm -rf pcdstitch/
 	mkdir -p pcdstitch
 	mkdir pcdstitch/orientations
-	stitch -i pcdstraight/ -o pcdstitch/
+	stitch -i pcdseg/ -o pcdstitch/
 
 mesh.stl: pcdstitch pcdstitch/merged.pcd graft.config
 	graft -i pcdstitch/merged.pcd -o ./
 	#view.py mesh.stl
+
+pcdsuper: mesh.stl super.config
+	rm -rf pcdsuper
+	mkdir -p pcdsuper
+	mkdir -p pcdsuper/orientations
+	super -i pcdstitch/ -o pcdsuper/ -r pcdstitch/orientations/ -s mesh.stl
+	#view.py pcdsuper/mesh.stl
 
 pcdgen: gen.config graft.config
 	rm -rf pcdgen/
@@ -41,13 +45,6 @@ pcdgen: gen.config graft.config
 	mkdir pcdgen/scans
 	gen -o pcdgen/
 	graft -i pcdgen/merged.pcd -o pcdgen/
-
-pcdsuper: mesh.stl super.config
-	rm -rf pcdsuper
-	mkdir -p pcdsuper
-	mkdir -p pcdsuper/orientations
-	super -i pcdstraight/ -o pcdsuper/ -r pcdstitch/orientations/ -s mesh.stl
-	#view.py pcdsuper/mesh.stl
 
 pcdsupergen: pcdgen super.config
 	rm -rf pcdsupergen
