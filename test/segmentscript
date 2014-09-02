@@ -1,5 +1,116 @@
 #!/bin/bash
 
-source ~/bin/util
+function filter
+{
+	while read line
+	do
+		if "$@" "$line"
+		then
+			echo "$line"
+		fi
+	done
+}
+function map
+{
+	while read line
+	do
+		"$@" "$line"
+	done
+}
+function list
+{
+	for x in "$@"
+	do
+		echo "$x"
+	done
+}
+function rest
+{
+	read line
+	while read line
+	do
+		echo "$line"
+	done
+}
+
+function concat
+{
+	local t=""
+	while read line
+	do
+		t="$t $line"
+	done
+	echo "$t"
+}
+function not
+{
+	if "$@"
+	then
+		return 1
+	else
+		return 0
+	fi
+}
+function eq
+{
+	if [[ "$1" = "$2" ]]
+	then
+		return 0
+	else
+		return 1
+	fi
+}
+function match
+{
+	if [[ "$2" =~ "$1" ]]
+	then
+		return 0
+	else
+		return 1
+	fi
+}
+function range
+{
+	for i in {"$1".."$2"}
+	do
+		echo "$i"
+	done
+}
+function switch
+{
+	if "$1"
+	then
+		"$2"
+	else
+		"$3"
+	fi
+}
+function replace
+{
+	if eq "$1" "$3"
+	then
+		echo "$2"
+	else
+		echo "$3"
+	fi
+}
+function maplambda
+{
+	while read line
+	do
+		$(list "$@" | rest | map replace "$1" "$line" | concat)
+	done
+}
+function mkpipe
+{
+	local t=$(mktemp -u --tmpdir=/tmp/pipes)
+	mkfifo -m 600 "$t"
+	echo "$t"
+}
+function silent
+{
+	"$@" &> /dev/null
+}
+
 
 ls pcd | filter match pcd | while read -r; do segment pcd/${REPLY} pcdseg/${REPLY}; done
