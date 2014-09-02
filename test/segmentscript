@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source ~/bin/util
+
+ls pcd | filter match pcd | while read -r; do segment pcd/${REPLY} pcdseg/${REPLY}; done

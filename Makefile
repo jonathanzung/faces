@@ -1,5 +1,5 @@
 CC=g++ -march=native -msse3 -mfpmath=sse -isystem /dupa-filer/jzung/include -isystem /dupa-filer/jzung/include/eigen3 -I /dupa-filer/jzung/include/vtk-6.1 -L /dupa-filer/jzung/lib 
-all: normal topcd trace torowm stitch straighten graft inspect compare
+all: normal topcd trace torowm stitch straighten graft inspect compare segment
 
 capture: capture.o util.o
 	$(CC) -O capture.o util.o -L/home/jonathan/Documents/CS/faces/.lib/OpenNI/Redist -lOpenNI2 -lstdc++ -lm -o capture
